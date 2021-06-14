@@ -1,0 +1,51 @@
+cardano-node run \
+--topology testnet-topology.json \
+--database-path db \
+--socket-path db/node.socket \
+--host-addr 127.0.0.1 \
+--port 3001 \
+--config testnet-config.json
+
+
+cardano-cli shelley node issue-op-cert \
+    --kes-verification-key-file kes.vkey \
+    --cold-signing-key-file cold.skey \
+    --operational-certificate-issue-counter cold.counter \
+    --kes-period 8100 \
+    --out-file node.cert
+    
+
+
+cardano-cli transaction build-raw \
+    --tx-in 9360786cce3318a316c1c2462c4582be1d6f6876c1bb2d6db2624490aaa5a646#0 \
+    --tx-out $(cat paymentwithstake.addr)+0 \
+    --ttl 0 \
+    --fee 0 \
+    --out-file tx.raw \
+    --certificate-file stake.cert
+
+    cardano-cli query protocol-parameters \
+    --shelley-era \
+    --testnet-magic 1097911063 \
+    --out-file protocol.json
+
+    cardano-cli transaction build-raw \
+--tx-in 9360786cce3318a316c1c2462c4582be1d6f6876c1bb2d6db2624490aaa5a646#0 \
+--tx-out $(cat paymentwithstake.addr)+997827239 \
+--ttl 29138322 \
+--fee 172761 \
+--out-file tx.raw \
+--certificate-file stake.cert
+
+
+
+cardano-node run \
+--topology shelley_testnet-topology.json \
+--database-path /db \
+--socket-path /db/node.socket \
+--host-addr 127.0.0.1 \
+--port 3001 \
+--config shelley_testnet-config.json \
+--shelley-kes-key kes.skey \
+--shelley-vrf-key vrf.skey \
+--shelley-operational-certificate node.cert
